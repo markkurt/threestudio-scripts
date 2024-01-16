@@ -2,4 +2,5 @@
 projects
 threestudio
 threestudio/*
+!docker-image/*
 notes/*
