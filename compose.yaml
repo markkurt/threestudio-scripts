@@ -1,0 +1,14 @@
+services:
+  threestudio:
+    image: mckurt/threestudio:latest
+    env_file:
+      - .env
+    volumes:
+      - ./threestudio:/root/threestudio
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              capabilities: [gpu]
+
