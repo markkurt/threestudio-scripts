@@ -1,3 +1,6 @@
+# ThreeStudio Scripts
+Scripts to assist running [threestudio](https://github.com/threestudio-project/threestudio) and [dreamcraft3d](https://github.com/DSaurus/threestudio-dreamcraft3D) on cloud servers.
+
 ## Using Linux Cloud Resources
 while it can work with <40MB of VRAM, I have had some runs that failed due to out of memory.  The `1x A6000 (48 GB VRAM)` for $0.80/hr at [Labda Labs](https://cloud.lambdalabs.com/instances) has consistently performed well.  Taking a about 3 hours to do a complete run.
 
@@ -8,20 +11,35 @@ Generally these scripts should work on hosts with Ubuntu 22.04 LTS
 
 - clone the repo to your working directory
 
-- run `./setup.sh`
--- at the very end of the output, check to make sure that the correct runtime is being used.  It should say `nvidia` somewhere in the last 10 lines or so.
--- the last step in setup will download zero123-xl via wget, if you want to use the more advanced stable-123 then download from huggingface.  If you are going to download, then you can CTRL-C out of the download of zero123-xl
+- copy `.env.example` to `.env` - `cp .env.example .env`
+-- there are two environment variables set in the .env - neither are used automatically, but they can be helpful to have available inside the docker container.  The DOCKER_HUB_TOKEN should only be needed if you are rebuilding the container.  The HUGGINGFACE_CLI_TOKEN will be needed to login to huggingface which is required to run the models.  It can be found under your [account](https://huggingface.co/settings/tokens)
+
+- run `sudo ./setup.sh`
+at the very end of the output, check to make sure that the correct runtime is being used.  It should say `nvidia` somewhere in the last 10 lines or so.
+```
+ Runtimes: nvidia runc io.containerd.runc.v2 io.containerd.runtime.v1.linux
+ Default Runtime: nvidia
+ ```
+
+- the last step in setup will download zero123-xl via wget, if you want to use the more advanced stable-123 then download from huggingface.  If you are going to download, then you can CTRL-C out of the download of zero123-xl
 
 - optional: download [stable-zero123](https://huggingface.co/stabilityai/stable-zero123) from hugging face.  rename the file to `stable_zero123.ckpt` and put in the `load/zero123` directory under `threestudio`
 
-- copy `.env.example` to `.env`
--- there are two environment variables set in the .env - neither are used automatically, but they can be helpful to have available inside the docker container.  The DOCKER_HUB_TOKEN should only be needed if you are rebuilding the container.  The HUGGINGFACE_CLI_TOKEN will be needed to login to huggingface which is required to run the models.  It can be found under your [account](https://huggingface.co/settings/tokens)
+- open an interactive shell to the container by running `./interactive.sh` (the first time this will require downloading the docker image)
+if you get an error that docker isn't running you can use:
+```
+sudo systemctl restart docker
+sudo systemctl daemon-reload
+```
+to restart docker and then run: `sudo docker info | grep -i runtime` to verify that docker is running with the nvidia runtime
 
-- open an interactive shell to the container by running `./interactive.sh` (the first time this will require downloading the dkcer image)
+### the following commands are run within the vm
 
-- cd in to the threestudio director and activate the virtual environment by running `. venv/bin/activate`
+- activate the virtual environment by running `. venv/bin/activate` in the root directory
 
 - run `huggingface-cli login` and copy in the token from the hugging face account tokens
+
+- change directory in to threestudio
 
 - at this point you should be able to run the command from the quickstart for threestudio:
 ```
